@@ -17,8 +17,17 @@ type InventoryActor struct {
 	Items map[string]*InventoryItem
 }
 
+type QueryInventoryItem struct {
+	ItemID string
+}
+
 type AddInventoryItem struct {
 	Item *InventoryItem
+}
+
+type UpdateInventoryItemCount struct {
+	ItemID string
+	Count  int
 }
 
 type RemoveInventoryItem struct {
@@ -39,5 +48,22 @@ func (actor *InventoryActor) Receive(ctx actor.Context) {
 	case *RemoveInventoryItem:
 		delete(actor.Items, msg.ItemID)
 		fmt.Printf("Removed item %s from inventory\n", msg.ItemID)
+	case *UpdateInventoryItemCount:
+		item, ok := actor.Items[msg.ItemID]
+		if !ok {
+			fmt.Printf("Item %s not found\n", msg.ItemID)
+			return
+		}
+		item.Count = msg.Count
+		fmt.Printf("Updated count of item %s to %d\n", msg.ItemID, msg.Count)
+	case *QueryInventoryItem:
+		item, ok := actor.Items[msg.ItemID]
+		if !ok {
+			fmt.Printf("Item %s not found\n", msg.ItemID)
+			return
+		}
+		fmt.Printf("Item %s:%s has count %d\n", item.ID, item.Name, item.Count)
+		ctx.Respond(item)
 	}
+
 }

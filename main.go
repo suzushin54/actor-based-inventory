@@ -21,5 +21,13 @@ func main() {
 
 	fmt.Printf("Added item %s:%s to inventory\n", item.ID, item.Name)
 
-	s.RemoveInventoryItem("item1")
+	s.UpdateInventoryItemCount(id, 333)
+
+	fmt.Printf("Updated count of item %s to %d\n", id, 333)
+
+	s.QueryInventoryItem(id)
+
+	fmt.Printf("Query item %s\n", id)
+
+	s.RemoveInventoryItem(id)
 }

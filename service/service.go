@@ -2,6 +2,7 @@ package service
 
 import (
 	"github.com/asynkron/protoactor-go/actor"
+	"github.com/oklog/ulid/v2"
 	"github.com/suzushin54/actor-based-inventory/actors"
 )
 
@@ -30,6 +31,16 @@ func (s *Service) AddInventoryItem(item *actors.InventoryItem) {
 	s.actorSystem.Root.Send(s.inventoryActorPID, &actors.AddInventoryItem{Item: item})
 }
 
-func (s *Service) RemoveInventoryItem(itemID string) {
-	s.actorSystem.Root.Send(s.inventoryActorPID, &actors.RemoveInventoryItem{ItemID: itemID})
+func (s *Service) RemoveInventoryItem(itemID ulid.ULID) {
+	s.actorSystem.Root.Send(s.inventoryActorPID, &actors.RemoveInventoryItem{ItemID: itemID.String()})
+}
+
+func (s *Service) UpdateInventoryItemCount(itemID ulid.ULID, count int) {
+	s.actorSystem.Root.Send(s.inventoryActorPID, &actors.UpdateInventoryItemCount{ItemID: itemID.String(), Count: count})
+}
+
+func (s *Service) QueryInventoryItem(itemID ulid.ULID) *actors.InventoryItem {
+	future := s.actorSystem.Root.RequestFuture(s.inventoryActorPID, &actors.QueryInventoryItem{ItemID: itemID.String()}, 1000)
+	result, _ := future.Result()
+	return result.(*actors.InventoryItem)
 }
