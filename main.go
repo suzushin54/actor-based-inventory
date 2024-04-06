@@ -25,9 +25,13 @@ func main() {
 
 	fmt.Printf("Updated count of item %s to %d\n", id, 333)
 
-	s.QueryInventoryItem(id)
+	inventoryItem, err := s.QueryInventoryItem(id)
+	if err != nil {
+		return
+	}
 
-	fmt.Printf("Query item %s\n", id)
+	fmt.Printf("Queried item %s:%s from inventory\n", inventoryItem.ID, inventoryItem.Name)
+	fmt.Printf("Current item count: %d\n", inventoryItem.Count)
 
 	s.RemoveInventoryItem(id)
 }

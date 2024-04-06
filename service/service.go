@@ -1,9 +1,11 @@
 package service
 
 import (
+	"fmt"
 	"github.com/asynkron/protoactor-go/actor"
 	"github.com/oklog/ulid/v2"
 	"github.com/suzushin54/actor-based-inventory/actors"
+	"time"
 )
 
 type Service struct {
@@ -36,11 +38,26 @@ func (s *Service) RemoveInventoryItem(itemID ulid.ULID) {
 }
 
 func (s *Service) UpdateInventoryItemCount(itemID ulid.ULID, count int) {
-	s.actorSystem.Root.Send(s.inventoryActorPID, &actors.UpdateInventoryItemCount{ItemID: itemID.String(), Count: count})
+	s.actorSystem.Root.Send(s.inventoryActorPID, &actors.UpdateInventoryItemCount{
+		ItemID: itemID.String(),
+		Count:  count,
+	})
 }
 
-func (s *Service) QueryInventoryItem(itemID ulid.ULID) *actors.InventoryItem {
-	future := s.actorSystem.Root.RequestFuture(s.inventoryActorPID, &actors.QueryInventoryItem{ItemID: itemID.String()}, 1000)
-	result, _ := future.Result()
-	return result.(*actors.InventoryItem)
+func (s *Service) QueryInventoryItem(itemID ulid.ULID) (*actors.InventoryItem, error) {
+	future := s.actorSystem.Root.RequestFuture(s.inventoryActorPID, &actors.QueryInventoryItem{
+		ItemID: itemID.String(),
+	}, 5*time.Second)
+
+	result, err := future.Result()
+	if err != nil {
+		return nil, err
+	}
+
+	res, ok := result.(*actors.InventoryItem)
+	if !ok {
+		return nil, fmt.Errorf("unexpected response: %v", result)
+	}
+
+	return res, nil
 }
