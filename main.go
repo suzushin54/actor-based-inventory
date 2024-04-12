@@ -10,7 +10,10 @@ import (
 )
 
 func main() {
-	s := service.NewService()
+	s, err := service.NewService("localhost:9092", "inventory")
+	if err != nil {
+		log.Fatal(err)
+	}
 	id := ulid.Make()
 
 	http.HandleFunc("/add", func(w http.ResponseWriter, r *http.Request) {
