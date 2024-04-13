@@ -1,25 +1,22 @@
 ## Build stage
-FROM golang:1.22-alpine as builder
+FROM golang:1.22.2-bullseye as base
 
 WORKDIR /app
 
 COPY go.mod go.sum ./
 
-RUN go mod download
+RUN --mount=type=cache,target=/go/pkg/mod/ \
+    go mod download
+
+## Development stage
+FROM base AS development
+
+RUN go install github.com/go-delve/delve/cmd/dlv@latest
+RUN go install github.com/cosmtrek/air@latest
 
 COPY . .
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o main .
+WORKDIR /app/cmd
+RUN mkdir -p /app/tmp
 
-
-## Deploy stage
-FROM alpine:latest
-
-WORKDIR /root/
-
-# for SSL connection
-RUN apk --no-cache add ca-certificates
-
-COPY --from=builder /app/main .
-
-CMD ["./main"]
+CMD ["air", "-c", ".air.toml"]

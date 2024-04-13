@@ -2,28 +2,31 @@ services:
   app:
     build:
       context: .
-      dockerfile: Dockerfile
+      target: development
+    volumes:
+      - ./:/app
     ports:
       - "8080:8080"
-  zookeeper: # Manage Kafka brokers
-    image: confluentinc/cp-zookeeper:latest
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
-
-  kafka: # Real Time Data Streaming Platform
-    image: confluentinc/cp-kafka:latest
-    depends_on:
-      - zookeeper
-    ports:
-      - "9092:9092"
-    environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-
-  cassandra: # Distributed NoSQL Database
-    image: cassandra:latest
-    ports:
-      - "9042:9042"
+      - "2345:2345"
+#  zookeeper: # Manage Kafka brokers
+#    image: confluentinc/cp-zookeeper:latest
+#    environment:
+#      ZOOKEEPER_CLIENT_PORT: 2181
+#      ZOOKEEPER_TICK_TIME: 2000
+#
+#  kafka: # Real Time Data Streaming Platform
+#    image: confluentinc/cp-kafka:latest
+#    depends_on:
+#      - zookeeper
+#    ports:
+#      - "9092:9092"
+#    environment:
+#      KAFKA_BROKER_ID: 1
+#      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+#      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+#      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+#
+#  cassandra: # Distributed NoSQL Database
+#    image: cassandra:latest
+#    ports:
+#      - "9042:9042"
