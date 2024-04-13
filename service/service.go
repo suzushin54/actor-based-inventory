@@ -2,11 +2,12 @@ package service
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/asynkron/protoactor-go/actor"
 	"github.com/oklog/ulid/v2"
 	"github.com/suzushin54/actor-based-inventory/actors"
 	"github.com/suzushin54/actor-based-inventory/pkg/kafka"
-	"time"
 )
 
 type Service struct {

@@ -2,6 +2,7 @@ package actors
 
 import (
 	"fmt"
+
 	"github.com/asynkron/protoactor-go/actor"
 )
 

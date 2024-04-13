@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"net/http"
+
 	"github.com/oklog/ulid/v2"
 	"github.com/suzushin54/actor-based-inventory/actors"
 	"github.com/suzushin54/actor-based-inventory/service"
-	"log"
-	"net/http"
 )
 
 func main() {
@@ -22,7 +23,9 @@ func main() {
 			Name:  "商品1",
 			Count: 10,
 		}
-		s.AddInventoryItem(item)
+		if err := s.AddInventoryItem(item); err != nil {
+			return
+		}
 		fmt.Printf("Added item %s:%s to inventory\n", item.ID, item.Name)
 	})
 
