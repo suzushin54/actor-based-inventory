@@ -9,6 +9,7 @@ require (
 )
 
 require (
+	connectrpc.com/connect v1.16.0 // indirect
 	github.com/Workiva/go-datastructures v1.1.3 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect

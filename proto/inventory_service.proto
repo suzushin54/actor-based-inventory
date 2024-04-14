@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package inventory;
+
+import "google/protobuf/empty.proto";
+
+service InventoryService {
+  rpc GetInventory(GetInventoryRequest) returns (GetInventoryResponse) {}
+}
+
