@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/oklog/ulid/v2"
 	"github.com/suzushin54/actor-based-inventory/actors"
@@ -11,7 +12,8 @@ import (
 )
 
 func main() {
-	s, err := service.NewService("localhost:9092", "inventory")
+	brokerAddr := os.Getenv("KAFKA_BOOTSTRAP_SERVERS")
+	s, err := service.NewService(brokerAddr, "inventory")
 	if err != nil {
 		log.Fatal(err)
 	}

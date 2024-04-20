@@ -8,6 +8,11 @@ services:
     ports:
       - "8080:8080"
       - "2345:2345"
+    depends_on:
+      - kafka
+      - cassandra
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: "kafka:9092"
   zookeeper: # Manage Kafka brokers
     image: confluentinc/cp-zookeeper:latest
     environment:
