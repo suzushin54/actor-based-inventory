@@ -3,13 +3,15 @@ module github.com/suzushin54/actor-based-inventory
 go 1.22
 
 require (
+	connectrpc.com/connect v1.16.0
 	github.com/asynkron/protoactor-go v0.0.0-20240413045429-76c172a71a16
 	github.com/confluentinc/confluent-kafka-go/v2 v2.3.0
 	github.com/oklog/ulid/v2 v2.1.0
+	golang.org/x/net v0.21.0
+	google.golang.org/protobuf v1.33.0
 )
 
 require (
-	connectrpc.com/connect v1.16.0 // indirect
 	github.com/Workiva/go-datastructures v1.1.3 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
@@ -34,5 +36,5 @@ require (
 	go.opentelemetry.io/otel/sdk/metric v1.21.0 // indirect
 	go.opentelemetry.io/otel/trace v1.21.0 // indirect
 	golang.org/x/sys v0.19.0 // indirect
-	google.golang.org/protobuf v1.33.0 // indirect
+	golang.org/x/text v0.14.0 // indirect
 )

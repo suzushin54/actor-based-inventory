@@ -2,14 +2,20 @@ package main
 
 import (
 	"fmt"
+	"github.com/suzushin54/actor-based-inventory/actors"
 	"log"
 	"net/http"
 	"os"
 
-	"github.com/oklog/ulid/v2"
-	"github.com/suzushin54/actor-based-inventory/actors"
+	_ "github.com/oklog/ulid/v2"
+	inventoryv1 "github.com/suzushin54/actor-based-inventory/gen/inventory/v1"
+	"github.com/suzushin54/actor-based-inventory/gen/inventory/v1/inventoryv1connect"
 	"github.com/suzushin54/actor-based-inventory/service"
+	"golang.org/x/net/http2"
+	"golang.org/x/net/http2/h2c"
 )
+
+const httpServerAddr = "localhost:8080"
 
 func main() {
 	brokerAddr := os.Getenv("KAFKA_BOOTSTRAP_SERVERS")
@@ -17,39 +23,47 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	id := ulid.Make()
+	//id := ulid.Make()
 
-	http.HandleFunc("/add", func(w http.ResponseWriter, r *http.Request) {
-		item := &actors.InventoryItem{
-			ID:    id.String(),
-			Name:  "商品1",
-			Count: 10,
-		}
-		if err := s.AddInventoryItem(item); err != nil {
-			return
-		}
-		fmt.Printf("Added item %s:%s to inventory\n", item.ID, item.Name)
-	})
+	mux := http.NewServeMux()
+	iss := NewInventoryServiceServer(s)
+	path, handler := inventoryv1connect.NewInventoryServiceHandler(iss)
+	mux.Handle(path, handler)
 
-	http.HandleFunc("/update", func(w http.ResponseWriter, r *http.Request) {
-		s.UpdateInventoryItemCount(id, 333)
-		fmt.Printf("Updated count of item %s to %d\n", id, 333)
-	})
+	if err := http.ListenAndServe(
+		httpServerAddr,
+		// Use h2c so we can serve HTTP/2 without TLS.
+		h2c.NewHandler(mux, &http2.Server{}),
+	); err != nil {
+		return
+	}
 
-	http.HandleFunc("/query", func(w http.ResponseWriter, r *http.Request) {
-		inventoryItem, err := s.QueryInventoryItem(id)
-		if err != nil {
-			return
-		}
+}
 
-		fmt.Printf("Queried item %s:%s from inventory\n", inventoryItem.ID, inventoryItem.Name)
-		fmt.Printf("Current item count: %d\n", inventoryItem.Count)
-	})
+// InventoryServiceServer implements the inventoryv1connect.InventoryServiceServer interface.
+type InventoryServiceServer struct {
+	service *service.Service
+	inventoryv1connect.UnimplementedInventoryServiceHandler
+}
 
-	http.HandleFunc("/remove", func(w http.ResponseWriter, r *http.Request) {
-		s.RemoveInventoryItem(id)
-	})
+func NewInventoryServiceServer(s *service.Service) *InventoryServiceServer {
+	return &InventoryServiceServer{
+		service: s,
+	}
+}
 
-	log.Println("Starting inventory management server on :8080")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+func (s *InventoryServiceServer) CreateInventoryItem(
+	r *inventoryv1.CreateInventoryRequest,
+) (*inventoryv1.CreateInventoryResponse, error) {
+	item := &actors.InventoryItem{
+		ID:    r.Inventory.ProductId,
+		Count: int(r.Inventory.Quantity),
+	}
+
+	if err := s.service.AddInventoryItem(item); err != nil {
+		return nil, err
+	}
+
+	fmt.Printf("CreateInventoryItem: %v\n", r.Inventory)
+	return nil, nil
 }
