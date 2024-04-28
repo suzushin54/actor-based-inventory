@@ -6,8 +6,10 @@ require (
 	connectrpc.com/connect v1.16.0
 	github.com/asynkron/protoactor-go v0.0.0-20240413045429-76c172a71a16
 	github.com/confluentinc/confluent-kafka-go/v2 v2.3.0
+	github.com/google/wire v0.6.0
 	github.com/oklog/ulid/v2 v2.1.0
 	golang.org/x/net v0.21.0
+	golang.org/x/sync v0.6.0
 	google.golang.org/protobuf v1.33.0
 )
 
@@ -20,7 +22,6 @@ require (
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/google/uuid v1.5.0 // indirect
-	github.com/google/wire v0.6.0 // indirect
 	github.com/lithammer/shortuuid/v4 v4.0.0 // indirect
 	github.com/lmittmann/tint v1.0.3 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.4 // indirect

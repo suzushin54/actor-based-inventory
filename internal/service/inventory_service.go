@@ -6,17 +6,17 @@ import (
 
 	"github.com/asynkron/protoactor-go/actor"
 	"github.com/oklog/ulid/v2"
-	"github.com/suzushin54/actor-based-inventory/actors"
+	"github.com/suzushin54/actor-based-inventory/internal/actors"
 	"github.com/suzushin54/actor-based-inventory/pkg/kafka"
 )
 
-type Service struct {
+type InventoryService struct {
 	actorSystem       *actor.ActorSystem
 	inventoryActorPID *actor.PID
 	kafkaProducer     *kafka.Producer
 }
 
-func NewService(brokers string, topic string) (*Service, error) {
+func NewInventoryService(brokers string, topic string) (*InventoryService, error) {
 	system := actor.NewActorSystem()
 	props := actor.PropsFromProducer(
 		func() actor.Actor {
@@ -31,14 +31,14 @@ func NewService(brokers string, topic string) (*Service, error) {
 		return nil, err
 	}
 
-	return &Service{
+	return &InventoryService{
 		actorSystem:       system,
 		inventoryActorPID: pid,
 		kafkaProducer:     kafkaProducer,
 	}, nil
 }
 
-func (s *Service) AddInventoryItem(item *actors.InventoryItem) error {
+func (s *InventoryService) AddInventoryItem(item *actors.InventoryItem) error {
 	s.actorSystem.Root.Send(s.inventoryActorPID, &actors.AddInventoryItem{Item: item})
 
 	message := fmt.Sprintf("Added item %s to inventory", item.ID)
@@ -50,18 +50,18 @@ func (s *Service) AddInventoryItem(item *actors.InventoryItem) error {
 	return nil
 }
 
-func (s *Service) RemoveInventoryItem(itemID ulid.ULID) {
+func (s *InventoryService) RemoveInventoryItem(itemID ulid.ULID) {
 	s.actorSystem.Root.Send(s.inventoryActorPID, &actors.RemoveInventoryItem{ItemID: itemID.String()})
 }
 
-func (s *Service) UpdateInventoryItemCount(itemID ulid.ULID, count int) {
+func (s *InventoryService) UpdateInventoryItemCount(itemID ulid.ULID, count int) {
 	s.actorSystem.Root.Send(s.inventoryActorPID, &actors.UpdateInventoryItemCount{
 		ItemID: itemID.String(),
 		Count:  count,
 	})
 }
 
-func (s *Service) QueryInventoryItem(itemID ulid.ULID) (*actors.InventoryItem, error) {
+func (s *InventoryService) QueryInventoryItem(itemID ulid.ULID) (*actors.InventoryItem, error) {
 	future := s.actorSystem.Root.RequestFuture(s.inventoryActorPID, &actors.QueryInventoryItem{
 		ItemID: itemID.String(),
 	}, 5*time.Second)
