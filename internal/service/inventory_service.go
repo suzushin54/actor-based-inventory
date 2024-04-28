@@ -16,7 +16,8 @@ type InventoryService struct {
 	kafkaProducer     *kafka.Producer
 }
 
-func NewInventoryService(brokers string, topic string) (*InventoryService, error) {
+func NewInventoryService(brokers string) (*InventoryService, error) {
+
 	system := actor.NewActorSystem()
 	props := actor.PropsFromProducer(
 		func() actor.Actor {
