@@ -19,7 +19,7 @@ type Server struct {
 func NewServer(handler http.Handler) *Server {
 	return &Server{
 		server: &http.Server{
-			Addr: "8080",
+			Addr: os.Getenv("HTTP_SERVER_ADDRESS"),
 			// Use h2c for HTTP/2 without TLS
 			Handler: h2c.NewHandler(handler, &http2.Server{}),
 		},
