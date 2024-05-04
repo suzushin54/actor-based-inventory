@@ -1,14 +1,20 @@
 package kafka
 
-import "github.com/confluentinc/confluent-kafka-go/v2/kafka"
+import (
+	"os"
+
+	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
+)
 
 type Producer struct {
 	Producer *kafka.Producer
 }
 
-func NewProducer(brokers string) (*Producer, error) {
+func NewProducer() (*Producer, error) {
+	brokerAddr := os.Getenv("KAFKA_BOOTSTRAP_SERVERS")
+
 	p, err := kafka.NewProducer(&kafka.ConfigMap{
-		"bootstrap.servers": brokers,
+		"bootstrap.servers": brokerAddr,
 	})
 	if err != nil {
 		return nil, err

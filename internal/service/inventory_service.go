@@ -7,43 +7,38 @@ import (
 	"github.com/asynkron/protoactor-go/actor"
 	"github.com/oklog/ulid/v2"
 	"github.com/suzushin54/actor-based-inventory/internal/actors"
-	"github.com/suzushin54/actor-based-inventory/pkg/kafka"
+	"github.com/suzushin54/actor-based-inventory/internal/infrastructure"
 )
 
 type InventoryService struct {
 	actorSystem       *actor.ActorSystem
 	inventoryActorPID *actor.PID
-	kafkaProducer     *kafka.Producer
+	eventPublisher    *infrastructure.EventPublisher
 }
 
-func NewInventoryService(brokers string) (*InventoryService, error) {
-
-	system := actor.NewActorSystem()
+func NewInventoryService(
+	actorSystem *actor.ActorSystem,
+	//inventoryActorPID *actor.PID,
+	eventPublisher *infrastructure.EventPublisher,
+) *InventoryService {
 	props := actor.PropsFromProducer(
 		func() actor.Actor {
 			return actors.NewInventoryActor()
 		},
 	)
-
-	pid := system.Root.Spawn(props)
-
-	kafkaProducer, err := kafka.NewProducer(brokers)
-	if err != nil {
-		return nil, err
-	}
-
+	inventoryActorPID := actorSystem.Root.Spawn(props)
 	return &InventoryService{
-		actorSystem:       system,
-		inventoryActorPID: pid,
-		kafkaProducer:     kafkaProducer,
-	}, nil
+		actorSystem:       actorSystem,
+		inventoryActorPID: inventoryActorPID,
+		eventPublisher:    eventPublisher,
+	}
 }
 
 func (s *InventoryService) AddInventoryItem(item *actors.InventoryItem) error {
 	s.actorSystem.Root.Send(s.inventoryActorPID, &actors.AddInventoryItem{Item: item})
 
 	message := fmt.Sprintf("Added item %s to inventory", item.ID)
-	if err := s.kafkaProducer.SendMessage("inventory", item.ID, []byte(message)); err != nil {
+	if err := s.eventPublisher.Publish("inventory", item.ID, []byte(message)); err != nil {
 		return err
 	}
 
