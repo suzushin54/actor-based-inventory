@@ -13,7 +13,6 @@ import (
 	"github.com/suzushin54/actor-based-inventory/internal/infrastructure/server"
 	"github.com/suzushin54/actor-based-inventory/internal/service"
 	"net/http"
-	"os"
 )
 
 // Injectors from wire.go:
@@ -36,10 +35,6 @@ func InitServer() (*server.Server, error) {
 
 func provideHTTPHandler(mux *http.ServeMux) http.Handler {
 	return mux
-}
-
-func provideKafkaBrokerAddress() string {
-	return os.Getenv("KAFKA_BOOTSTRAP_SERVERS")
 }
 
 func NewActorSystem() *actor.ActorSystem {
