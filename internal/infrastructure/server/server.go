@@ -28,17 +28,17 @@ func NewServer(handler http.Handler) *Server {
 }
 
 func (s *Server) Start() error {
-	slog.Info("HTTP server starting on %s", s.server.Addr)
+	slog.Info("HTTP server starting.", "Address", s.server.Addr)
 
 	if err := s.server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
-		slog.Error("Failed to start HTTP server: %v", err)
+		slog.Error("Failed to start HTTP server.", "error", err)
 		return err
 	}
 	return nil
 }
 
 func (s *Server) Stop() error {
-	slog.Info("Shutting down HTTP server on %s", s.server.Addr)
+	slog.Info("Shutting down HTTP server.", "Address", s.server.Addr)
 	return s.server.Shutdown(context.Background())
 }
 
@@ -48,6 +48,6 @@ func (s *Server) WaitForSignal() {
 	signal.Notify(stopChan, os.Interrupt, syscall.SIGTERM)
 	<-stopChan
 	if err := s.Stop(); err != nil {
-		slog.Error("Failed to stop server gracefully: %v", err)
+		slog.Error("Failed to stop server gracefully.", "error", err)
 	}
 }

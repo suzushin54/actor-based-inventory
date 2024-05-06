@@ -1,7 +1,7 @@
 package actors
 
 import (
-	"fmt"
+	"log/slog"
 
 	"github.com/asynkron/protoactor-go/actor"
 )
@@ -45,25 +45,25 @@ func (actor *InventoryActor) Receive(ctx actor.Context) {
 	switch msg := ctx.Message().(type) {
 	case *AddInventoryItem:
 		actor.Items[msg.Item.ID] = msg.Item
-		fmt.Printf("Added item %s to inventory\n", msg.Item.Name)
+		slog.Info("Added item to inventory actor", "item_id", msg.Item.ID)
 	case *RemoveInventoryItem:
 		delete(actor.Items, msg.ItemID)
-		fmt.Printf("Removed item %s from inventory\n", msg.ItemID)
+		slog.Info("Removed item from inventory actor", "item_id", msg.ItemID)
 	case *UpdateInventoryItemCount:
 		item, ok := actor.Items[msg.ItemID]
 		if !ok {
-			fmt.Printf("Item %s not found\n", msg.ItemID)
+			slog.Warn("Item not found", "item_id", msg.ItemID)
 			return
 		}
 		item.Count = msg.Count
-		fmt.Printf("Updated count of item %s to %d\n", msg.ItemID, msg.Count)
+		slog.Info("Updated count of item in inventory actor", "item_id", msg.ItemID, "count", msg.Count)
 	case *QueryInventoryItem:
 		item, ok := actor.Items[msg.ItemID]
 		if !ok {
-			fmt.Printf("Item %s not found\n", msg.ItemID)
+			slog.Warn("Item not found", "item_id", msg.ItemID)
 			return
 		}
-		fmt.Printf("Item %s:%s has count %d\n", item.ID, item.Name, item.Count)
+		slog.Info("Item found in inventory actor", "item_id", msg.ItemID)
 		ctx.Respond(item)
 	}
 

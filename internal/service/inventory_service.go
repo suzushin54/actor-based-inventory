@@ -45,7 +45,7 @@ func (s *InventoryService) AddInventoryItem(item *actors.InventoryItem) error {
 		return err
 	}
 
-	s.logger.Info("Added item %s to inventory", item.ID)
+	s.logger.Info("successfully added item to inventory", slog.String("item_id", item.ID), slog.Int("count", item.Count))
 	return nil
 }
 
