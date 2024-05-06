@@ -4,16 +4,18 @@
 package di
 
 import (
+	"log/slog"
+	"net/http"
+
 	"github.com/asynkron/protoactor-go/actor"
 	"github.com/google/wire"
 	"github.com/suzushin54/actor-based-inventory/internal/adapters"
 	"github.com/suzushin54/actor-based-inventory/internal/infrastructure"
 	"github.com/suzushin54/actor-based-inventory/internal/infrastructure/server"
 	"github.com/suzushin54/actor-based-inventory/internal/service"
-	"net/http"
 )
 
-func InitServer() (*server.Server, error) {
+func InitServer(logger *slog.Logger) (*server.Server, error) {
 	wire.Build(
 		NewActorSystem,
 

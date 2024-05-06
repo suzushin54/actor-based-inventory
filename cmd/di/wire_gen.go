@@ -12,18 +12,19 @@ import (
 	"github.com/suzushin54/actor-based-inventory/internal/infrastructure"
 	"github.com/suzushin54/actor-based-inventory/internal/infrastructure/server"
 	"github.com/suzushin54/actor-based-inventory/internal/service"
+	"log/slog"
 	"net/http"
 )
 
 // Injectors from wire.go:
 
-func InitServer() (*server.Server, error) {
+func InitServer(logger *slog.Logger) (*server.Server, error) {
 	actorSystem := NewActorSystem()
 	eventPublisher, err := infrastructure.NewEventPublisher()
 	if err != nil {
 		return nil, err
 	}
-	inventoryService := service.NewInventoryService(actorSystem, eventPublisher)
+	inventoryService := service.NewInventoryService(logger, actorSystem, eventPublisher)
 	inventoryServiceHandler := adapters.NewInventoryServiceHandler(inventoryService)
 	serveMux := server.ConfigureMux(inventoryServiceHandler)
 	handler := provideHTTPHandler(serveMux)

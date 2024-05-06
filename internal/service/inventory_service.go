@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"log/slog"
 	"time"
 
 	"github.com/asynkron/protoactor-go/actor"
@@ -11,14 +12,15 @@ import (
 )
 
 type InventoryService struct {
+	logger            *slog.Logger
 	actorSystem       *actor.ActorSystem
 	inventoryActorPID *actor.PID
 	eventPublisher    *infrastructure.EventPublisher
 }
 
 func NewInventoryService(
+	logger *slog.Logger,
 	actorSystem *actor.ActorSystem,
-	//inventoryActorPID *actor.PID,
 	eventPublisher *infrastructure.EventPublisher,
 ) *InventoryService {
 	props := actor.PropsFromProducer(
@@ -28,6 +30,7 @@ func NewInventoryService(
 	)
 	inventoryActorPID := actorSystem.Root.Spawn(props)
 	return &InventoryService{
+		logger:            logger,
 		actorSystem:       actorSystem,
 		inventoryActorPID: inventoryActorPID,
 		eventPublisher:    eventPublisher,
@@ -42,7 +45,7 @@ func (s *InventoryService) AddInventoryItem(item *actors.InventoryItem) error {
 		return err
 	}
 
-	fmt.Printf("Added item %s to inventory\n", item.ID)
+	s.logger.Info("Added item %s to inventory", item.ID)
 	return nil
 }
 

@@ -1,22 +1,23 @@
 package main
 
 import (
-	"fmt"
-	"log"
+	"log/slog"
+	"os"
 
 	_ "github.com/oklog/ulid/v2"
 	"github.com/suzushin54/actor-based-inventory/cmd/di"
 )
 
 func main() {
-	log.Printf("main process started\n")
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	logger.Info("main process started")
 
-	svr, err := di.InitServer()
+	svr, err := di.InitServer(logger)
 	if err != nil {
-		log.Fatalf("failed to initialize service: %v", err)
+		logger.Error("failed to initialize service", err)
 	}
 
 	if err := svr.Start(); err != nil {
-		fmt.Printf("failed to terminate server: %v", err)
+		logger.Error("failed to start server", err)
 	}
 }
