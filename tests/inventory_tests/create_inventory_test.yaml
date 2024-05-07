@@ -1,0 +1,15 @@
+desc: Test for creating inventory with Buf integration
+runners:
+  greq:
+    addr: localhost:8080
+    tls: false
+    bufDirs:
+      - ../../proto
+
+steps:
+  - greq:
+      inventory.v1.InventoryService/CreateInventory:
+        message:
+          inventory:
+            product_id: "123"
+            quantity: 225
