@@ -10,6 +10,7 @@ install:
 	go install github.com/fullstorydev/grpcurl/cmd/grpcurl@latest
 	go install github.com/bufbuild/connect-go/cmd/protoc-gen-connect-go@latest
 	go install github.com/google/wire/cmd/wire@latest
+	go install github.com/k1LoW/runn/cmd/runn@latest
 
 .PHONY: install-check
 install-check:
@@ -24,3 +25,7 @@ buf:
 .PHONY: wire
 wire: ## wire
 	wire ./cmd/di
+
+.PHONY: runn
+runn: ## runn
+	runn run tests/inventory_tests/create_inventory_test.yaml
