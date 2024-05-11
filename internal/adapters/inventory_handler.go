@@ -14,13 +14,13 @@ import (
 // InventoryServiceHandler implements the inventoryv1connect.InventoryServiceHandler interface.
 type InventoryServiceHandler struct {
 	logger  *slog.Logger
-	service *service.InventoryService
+	service service.InventoryService
 	inventoryv1connect.UnimplementedInventoryServiceHandler
 }
 
 func NewInventoryServiceHandler(
 	l *slog.Logger,
-	s *service.InventoryService,
+	s service.InventoryService,
 ) *InventoryServiceHandler {
 	return &InventoryServiceHandler{
 		logger:  l,

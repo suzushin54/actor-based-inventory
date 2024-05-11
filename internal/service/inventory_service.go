@@ -12,7 +12,14 @@ import (
 	"github.com/suzushin54/actor-based-inventory/internal/infrastructure"
 )
 
-type InventoryService struct {
+type InventoryService interface {
+	AddInventoryItem(ctx context.Context, item *actors.InventoryItem) error
+	RemoveInventoryItem(ctx context.Context, itemID ulid.ULID)
+	UpdateInventoryItemCount(ctx context.Context, itemID ulid.ULID, count int)
+	QueryInventoryItem(ctx context.Context, itemID ulid.ULID) (*actors.InventoryItem, error)
+}
+
+type inventoryService struct {
 	logger            *slog.Logger
 	actorSystem       *actor.ActorSystem
 	inventoryActorPID *actor.PID
@@ -23,14 +30,14 @@ func NewInventoryService(
 	logger *slog.Logger,
 	actorSystem *actor.ActorSystem,
 	eventPublisher *infrastructure.EventPublisher,
-) *InventoryService {
+) InventoryService {
 	props := actor.PropsFromProducer(
 		func() actor.Actor {
 			return actors.NewInventoryActor()
 		},
 	)
 	inventoryActorPID := actorSystem.Root.Spawn(props)
-	return &InventoryService{
+	return &inventoryService{
 		logger:            logger,
 		actorSystem:       actorSystem,
 		inventoryActorPID: inventoryActorPID,
@@ -38,7 +45,7 @@ func NewInventoryService(
 	}
 }
 
-func (s *InventoryService) AddInventoryItem(ctx context.Context, item *actors.InventoryItem) error {
+func (s *inventoryService) AddInventoryItem(ctx context.Context, item *actors.InventoryItem) error {
 	s.actorSystem.Root.Send(s.inventoryActorPID, &actors.AddInventoryItem{Item: item})
 
 	message := fmt.Sprintf("Added item %s to inventory", item.ID)
@@ -50,13 +57,13 @@ func (s *InventoryService) AddInventoryItem(ctx context.Context, item *actors.In
 	return nil
 }
 
-func (s *InventoryService) RemoveInventoryItem(ctx context.Context, itemID ulid.ULID) {
+func (s *inventoryService) RemoveInventoryItem(ctx context.Context, itemID ulid.ULID) {
 	s.actorSystem.Root.Send(s.inventoryActorPID, &actors.RemoveInventoryItem{ItemID: itemID.String()})
 
 	s.logger.InfoContext(ctx, "removed item from inventory", slog.String("item_id", itemID.String()))
 }
 
-func (s *InventoryService) UpdateInventoryItemCount(ctx context.Context, itemID ulid.ULID, count int) {
+func (s *inventoryService) UpdateInventoryItemCount(ctx context.Context, itemID ulid.ULID, count int) {
 	s.actorSystem.Root.Send(s.inventoryActorPID, &actors.UpdateInventoryItemCount{
 		ItemID: itemID.String(),
 		Count:  count,
@@ -65,7 +72,7 @@ func (s *InventoryService) UpdateInventoryItemCount(ctx context.Context, itemID 
 	s.logger.InfoContext(ctx, "updated item count in inventory", slog.String("item_id", itemID.String()), slog.Int("count", count))
 }
 
-func (s *InventoryService) QueryInventoryItem(ctx context.Context, itemID ulid.ULID) (*actors.InventoryItem, error) {
+func (s *inventoryService) QueryInventoryItem(ctx context.Context, itemID ulid.ULID) (*actors.InventoryItem, error) {
 	future := s.actorSystem.Root.RequestFuture(s.inventoryActorPID, &actors.QueryInventoryItem{
 		ItemID: itemID.String(),
 	}, 5*time.Second)
