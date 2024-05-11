@@ -19,6 +19,10 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
+    volumes:
+      - zookeeper-data:/var/lib/zookeeper
+    ports:
+      - "2181:2181"
 
   kafka: # Real Time Data Streaming Platform
     image: confluentinc/cp-kafka:latest
@@ -31,8 +35,14 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    volumes:
+      - kafka-data:/var/lib/kafka
 
   cassandra: # Distributed NoSQL Database
     image: cassandra:latest
     ports:
       - "9042:9042"
+
+volumes:
+  zookeeper-data:
+  kafka-data:
