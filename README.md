@@ -17,6 +17,7 @@ The inventory is implemented using the actor model, which allows for concurrent 
 - `make install-check`: Check if all necessary tools are correctly installed.
 - `make buf`: Lint and generate code from protobuf files using Buf.
 - `make wire`: Generate dependency injection code using Google Wire.
+- `make runn`: Run the scenario test using the `runn` tool.
 
 ## Running the Application
 
@@ -24,4 +25,15 @@ Refer to the "Running the project" section for instructions on how to run the pr
 
 ```bash
 docker compose up
+```
+
+## Request examples
+
+Request to create a new inventory item:
+
+```bash
+$ buf curl \
+  --schema proto \
+  --data '{"inventory": {"product_id": "123", "quantity": 225}}' \
+  http://localhost:8080/inventory.v1.InventoryService/CreateInventory
 ```
