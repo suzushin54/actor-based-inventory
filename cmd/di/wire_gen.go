@@ -25,7 +25,7 @@ func InitServer(logger *slog.Logger) (*server.Server, error) {
 		return nil, err
 	}
 	inventoryService := service.NewInventoryService(logger, actorSystem, eventPublisher)
-	inventoryServiceHandler := adapters.NewInventoryServiceHandler(inventoryService)
+	inventoryServiceHandler := adapters.NewInventoryServiceHandler(logger, inventoryService)
 	serveMux := server.ConfigureMux(inventoryServiceHandler)
 	handler := provideHTTPHandler(serveMux)
 	serverServer := server.NewServer(handler)

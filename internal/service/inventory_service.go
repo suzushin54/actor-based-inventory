@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"time"
@@ -37,7 +38,7 @@ func NewInventoryService(
 	}
 }
 
-func (s *InventoryService) AddInventoryItem(item *actors.InventoryItem) error {
+func (s *InventoryService) AddInventoryItem(ctx context.Context, item *actors.InventoryItem) error {
 	s.actorSystem.Root.Send(s.inventoryActorPID, &actors.AddInventoryItem{Item: item})
 
 	message := fmt.Sprintf("Added item %s to inventory", item.ID)
@@ -45,22 +46,26 @@ func (s *InventoryService) AddInventoryItem(item *actors.InventoryItem) error {
 		return err
 	}
 
-	s.logger.Info("successfully added item to inventory", slog.String("item_id", item.ID), slog.Int("count", item.Count))
+	s.logger.InfoContext(ctx, "successfully added item to inventory", slog.String("item_id", item.ID), slog.Int("count", item.Count))
 	return nil
 }
 
-func (s *InventoryService) RemoveInventoryItem(itemID ulid.ULID) {
+func (s *InventoryService) RemoveInventoryItem(ctx context.Context, itemID ulid.ULID) {
 	s.actorSystem.Root.Send(s.inventoryActorPID, &actors.RemoveInventoryItem{ItemID: itemID.String()})
+
+	s.logger.InfoContext(ctx, "removed item from inventory", slog.String("item_id", itemID.String()))
 }
 
-func (s *InventoryService) UpdateInventoryItemCount(itemID ulid.ULID, count int) {
+func (s *InventoryService) UpdateInventoryItemCount(ctx context.Context, itemID ulid.ULID, count int) {
 	s.actorSystem.Root.Send(s.inventoryActorPID, &actors.UpdateInventoryItemCount{
 		ItemID: itemID.String(),
 		Count:  count,
 	})
+
+	s.logger.InfoContext(ctx, "updated item count in inventory", slog.String("item_id", itemID.String()), slog.Int("count", count))
 }
 
-func (s *InventoryService) QueryInventoryItem(itemID ulid.ULID) (*actors.InventoryItem, error) {
+func (s *InventoryService) QueryInventoryItem(ctx context.Context, itemID ulid.ULID) (*actors.InventoryItem, error) {
 	future := s.actorSystem.Root.RequestFuture(s.inventoryActorPID, &actors.QueryInventoryItem{
 		ItemID: itemID.String(),
 	}, 5*time.Second)
@@ -75,5 +80,6 @@ func (s *InventoryService) QueryInventoryItem(itemID ulid.ULID) (*actors.Invento
 		return nil, fmt.Errorf("unexpected response: %v", result)
 	}
 
+	s.logger.InfoContext(ctx, "queried item from inventory", slog.String("item_id", itemID.String()), slog.Int("count", res.Count))
 	return res, nil
 }
