@@ -18,10 +18,9 @@ type InventoryServiceHandler struct {
 	inventoryv1connect.UnimplementedInventoryServiceHandler
 }
 
-func NewInventoryServiceHandler(
-	l *slog.Logger,
-	s service.InventoryService,
-) *InventoryServiceHandler {
+func NewInventoryServiceHandler(l *slog.Logger, s service.InventoryService) *InventoryServiceHandler {
+	l = l.With("component", "InventoryServiceHandler")
+
 	return &InventoryServiceHandler{
 		logger:  l,
 		service: s,

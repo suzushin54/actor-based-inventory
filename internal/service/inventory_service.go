@@ -26,22 +26,20 @@ type inventoryService struct {
 	eventPublisher    *infrastructure.EventPublisher
 }
 
-func NewInventoryService(
-	logger *slog.Logger,
-	actorSystem *actor.ActorSystem,
-	eventPublisher *infrastructure.EventPublisher,
-) InventoryService {
+func NewInventoryService(l *slog.Logger, as *actor.ActorSystem, ep *infrastructure.EventPublisher) InventoryService {
+	l = l.With("component", "InventoryService")
+
 	props := actor.PropsFromProducer(
 		func() actor.Actor {
 			return actors.NewInventoryActor()
 		},
 	)
-	inventoryActorPID := actorSystem.Root.Spawn(props)
+	pid := as.Root.Spawn(props)
 	return &inventoryService{
-		logger:            logger,
-		actorSystem:       actorSystem,
-		inventoryActorPID: inventoryActorPID,
-		eventPublisher:    eventPublisher,
+		logger:            l,
+		actorSystem:       as,
+		inventoryActorPID: pid,
+		eventPublisher:    ep,
 	}
 }
 
