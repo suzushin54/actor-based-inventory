@@ -14,8 +14,8 @@ import (
 
 type InventoryService interface {
 	AddInventoryItem(ctx context.Context, item *actors.InventoryItem) error
-	RemoveInventoryItem(ctx context.Context, itemID ulid.ULID)
-	UpdateInventoryItemCount(ctx context.Context, itemID ulid.ULID, count int)
+	RemoveInventoryItem(ctx context.Context, itemID ulid.ULID) error
+	UpdateInventoryItem(ctx context.Context, item *actors.InventoryItem) error
 	QueryInventoryItem(ctx context.Context, itemID ulid.ULID) (*actors.InventoryItem, error)
 }
 
@@ -51,23 +51,39 @@ func (s *inventoryService) AddInventoryItem(ctx context.Context, item *actors.In
 		return err
 	}
 
-	s.logger.InfoContext(ctx, "successfully added item to inventory", slog.String("item_id", item.ID), slog.Int("count", item.Count))
+	s.logger.InfoContext(ctx, "successfully added item to inventory",
+		slog.String("item_id", item.ID), slog.String("name", item.Name), slog.Int("count", item.Count),
+	)
+
 	return nil
 }
 
-func (s *inventoryService) RemoveInventoryItem(ctx context.Context, itemID ulid.ULID) {
+func (s *inventoryService) RemoveInventoryItem(ctx context.Context, itemID ulid.ULID) error {
 	s.actorSystem.Root.Send(s.inventoryActorPID, &actors.RemoveInventoryItem{ItemID: itemID.String()})
 
+	message := fmt.Sprintf("Removed item %s from inventory", itemID.String())
+	if err := s.eventPublisher.Publish("inventory", itemID.String(), []byte(message)); err != nil {
+		return err
+	}
+
 	s.logger.InfoContext(ctx, "removed item from inventory", slog.String("item_id", itemID.String()))
+
+	return nil
 }
 
-func (s *inventoryService) UpdateInventoryItemCount(ctx context.Context, itemID ulid.ULID, count int) {
-	s.actorSystem.Root.Send(s.inventoryActorPID, &actors.UpdateInventoryItemCount{
-		ItemID: itemID.String(),
-		Count:  count,
-	})
+func (s *inventoryService) UpdateInventoryItem(ctx context.Context, item *actors.InventoryItem) error {
+	s.actorSystem.Root.Send(s.inventoryActorPID, &actors.UpdateInventoryItem{Item: item})
 
-	s.logger.InfoContext(ctx, "updated item count in inventory", slog.String("item_id", itemID.String()), slog.Int("count", count))
+	message := fmt.Sprintf("Updated item %s in inventory", item.ID)
+	if err := s.eventPublisher.Publish("inventory", item.ID, []byte(message)); err != nil {
+		return err
+	}
+
+	s.logger.InfoContext(ctx, "updated item count in inventory",
+		slog.String("item_id", item.ID), slog.String("name", item.Name), slog.Int("count", item.Count),
+	)
+
+	return nil
 }
 
 func (s *inventoryService) QueryInventoryItem(ctx context.Context, itemID ulid.ULID) (*actors.InventoryItem, error) {
@@ -86,5 +102,6 @@ func (s *inventoryService) QueryInventoryItem(ctx context.Context, itemID ulid.U
 	}
 
 	s.logger.InfoContext(ctx, "queried item from inventory", slog.String("item_id", itemID.String()), slog.Int("count", res.Count))
+
 	return res, nil
 }

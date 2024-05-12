@@ -26,9 +26,8 @@ type AddInventoryItem struct {
 	Item *InventoryItem
 }
 
-type UpdateInventoryItemCount struct {
-	ItemID string
-	Count  int
+type UpdateInventoryItem struct {
+	Item *InventoryItem
 }
 
 type RemoveInventoryItem struct {
@@ -49,14 +48,16 @@ func (actor *InventoryActor) Receive(ctx actor.Context) {
 	case *RemoveInventoryItem:
 		delete(actor.Items, msg.ItemID)
 		slog.Info("Removed item from inventory actor", "item_id", msg.ItemID)
-	case *UpdateInventoryItemCount:
-		item, ok := actor.Items[msg.ItemID]
+	case *UpdateInventoryItem:
+		item, ok := actor.Items[msg.Item.ID]
 		if !ok {
-			slog.Warn("Item not found", "item_id", msg.ItemID)
+			slog.Warn("Item not found", "item_id", msg.Item.ID)
 			return
 		}
-		item.Count = msg.Count
-		slog.Info("Updated count of item in inventory actor", "item_id", msg.ItemID, "count", msg.Count)
+		item.Name = msg.Item.Name
+		item.Count = msg.Item.Count
+
+		slog.Info("Updated count of item in inventory actor", "item", item)
 	case *QueryInventoryItem:
 		item, ok := actor.Items[msg.ItemID]
 		if !ok {
