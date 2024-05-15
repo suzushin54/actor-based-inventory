@@ -1,4 +1,4 @@
-desc: Test for creating inventory with Buf integration
+desc: Test for creating, querying, updating, and deleting inventory with Buf integration
 runners:
   greq:
     addr: localhost:8080
@@ -7,9 +7,54 @@ runners:
       - ../../proto
 
 steps:
-  - greq:
+  create_inventory:
+    desc: "Create inventory item"
+    greq:
       inventory.v1.InventoryService/CreateInventory:
         message:
           inventory:
             product_id: "123"
             quantity: 225
+    test: steps.create_inventory.res.status == 0
+
+  query_inventory_after_creation:
+    desc: "Query inventory item after creation"
+    greq:
+      inventory.v1.InventoryService/GetInventory:
+        message:
+          product_id: "123"
+    test: steps.query_inventory_after_creation.res.status == 0
+
+  update_inventory:
+    desc: "Update inventory item"
+    greq:
+      inventory.v1.InventoryService/UpdateInventory:
+        message:
+          inventory:
+            product_id: "123"
+            quantity: 300
+    test: steps.update_inventory.res.status == 0
+
+  query_inventory_after_update:
+    desc: "Query inventory item after update"
+    greq:
+      inventory.v1.InventoryService/GetInventory:
+        message:
+          product_id: "123"
+    test: steps.query_inventory_after_update.res.status == 0
+
+  delete_inventory:
+    desc: "Delete inventory item"
+    greq:
+      inventory.v1.InventoryService/DeleteInventory:
+        message:
+          product_id: "123"
+    test: steps.delete_inventory.res.status == 0
+
+  query_inventory_after_deletion:
+    desc: "Query inventory item after deletion"
+    greq:
+      inventory.v1.InventoryService/GetInventory:
+        message:
+          product_id: "123"
+    test: steps.query_inventory_after_deletion.res.status == 5
