@@ -4,22 +4,29 @@ import (
 	"log/slog"
 
 	"github.com/asynkron/protoactor-go/actor"
+	"github.com/oklog/ulid/v2"
 )
+
+type ID ulid.ULID
+
+func (id ID) String() string {
+	return ulid.ULID(id).String()
+}
 
 // InventoryItem represents an item in an inventory.
 type InventoryItem struct {
-	ID    string
+	ID    ID
 	Name  string
 	Count int
 }
 
 // InventoryActor is an actor that manages an inventory of items.
 type InventoryActor struct {
-	Items map[string]*InventoryItem
+	Items map[ID]*InventoryItem
 }
 
 type QueryInventoryItem struct {
-	ItemID string
+	ItemID ID
 }
 
 type AddInventoryItem struct {
@@ -31,12 +38,12 @@ type UpdateInventoryItem struct {
 }
 
 type RemoveInventoryItem struct {
-	ItemID string
+	ItemID ID
 }
 
 func NewInventoryActor() *InventoryActor {
 	return &InventoryActor{
-		Items: make(map[string]*InventoryItem),
+		Items: make(map[ID]*InventoryItem),
 	}
 }
 

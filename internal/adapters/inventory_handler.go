@@ -2,10 +2,11 @@ package adapters
 
 import (
 	"context"
-	"github.com/oklog/ulid/v2"
+	"fmt"
 	"log/slog"
 
 	"connectrpc.com/connect"
+	"github.com/oklog/ulid/v2"
 	inventoryv1 "github.com/suzushin54/actor-based-inventory/gen/inventory/v1"
 	"github.com/suzushin54/actor-based-inventory/gen/inventory/v1/inventoryv1connect"
 	"github.com/suzushin54/actor-based-inventory/internal/actors"
@@ -33,13 +34,18 @@ func (s *InventoryServiceHandler) CreateInventory(
 	req *connect.Request[inventoryv1.CreateInventoryRequest],
 ) (*connect.Response[inventoryv1.CreateInventoryResponse], error) {
 	s.logger.InfoContext(ctx, "CreateInventory", slog.Any("req", req))
+	itemID, err := ulid.New(ulid.Now(), nil)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+
 	item := &actors.InventoryItem{
-		ID:    req.Msg.Inventory.ProductId,
+		ID:    actors.ID(itemID),
 		Count: int(req.Msg.Inventory.Quantity),
 	}
 
 	if err := s.service.AddInventoryItem(ctx, item); err != nil {
-		return nil, err
+		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 
 	return connect.NewResponse(
@@ -54,18 +60,18 @@ func (s *InventoryServiceHandler) GetInventory(
 	s.logger.InfoContext(ctx, "GetInventory", slog.Any("req", req))
 	itemID, err := ulid.Parse(req.Msg.ProductId)
 	if err != nil {
-		return nil, err
+		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid ULID: %v", err))
 	}
 
-	item, err := s.service.QueryInventoryItem(ctx, itemID)
+	item, err := s.service.QueryInventoryItem(ctx, actors.ID(itemID))
 	if err != nil {
-		return nil, err
+		return nil, connect.NewError(connect.CodeNotFound, fmt.Errorf("item not found: %v", err))
 	}
 
 	return connect.NewResponse(
 		&inventoryv1.GetInventoryResponse{
 			Inventory: &inventoryv1.Inventory{
-				ProductId: item.ID,
+				ProductId: item.ID.String(),
 				Quantity:  int32(item.Count),
 			},
 		},
@@ -77,14 +83,18 @@ func (s *InventoryServiceHandler) UpdateInventory(
 	req *connect.Request[inventoryv1.UpdateInventoryRequest],
 ) (*connect.Response[inventoryv1.UpdateInventoryResponse], error) {
 	s.logger.InfoContext(ctx, "UpdateInventory", slog.Any("req", req))
+	itemID, err := ulid.Parse(req.Msg.Inventory.ProductId)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid ULID: %v", err))
+	}
 
 	item := &actors.InventoryItem{
-		ID:    req.Msg.Inventory.ProductId,
+		ID:    actors.ID(itemID),
 		Count: int(req.Msg.Inventory.Quantity),
 	}
 
 	if err := s.service.UpdateInventoryItem(ctx, item); err != nil {
-		return nil, err
+		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 
 	return connect.NewResponse(
@@ -102,8 +112,8 @@ func (s *InventoryServiceHandler) DeleteInventory(
 		return nil, err
 	}
 
-	if err := s.service.RemoveInventoryItem(ctx, itemID); err != nil {
-		return nil, err
+	if err := s.service.RemoveInventoryItem(ctx, actors.ID(itemID)); err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 
 	return connect.NewResponse(
