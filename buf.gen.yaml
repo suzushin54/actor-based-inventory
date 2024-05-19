@@ -1,13 +1,12 @@
-version: v2
+version: v1
 managed:
   enabled: true
-  override:
-    - file_option: go_package_prefix
-      value: github.com/suzushin54/actor-based-inventory/gen
+  go_package_prefix:
+    default: github.com/suzushin54/actor-based-inventory/gen
 plugins:
-  - remote: buf.build/protocolbuffers/go
+  - plugin: buf.build/protocolbuffers/go
     out: gen
     opt: paths=source_relative
-  - remote: buf.build/connectrpc/go
+  - plugin: buf.build/connectrpc/go
     out: gen
     opt: paths=source_relative
