@@ -49,7 +49,9 @@ func (s *InventoryServiceHandler) CreateInventory(
 	}
 
 	return connect.NewResponse(
-		&inventoryv1.CreateInventoryResponse{},
+		&inventoryv1.CreateInventoryResponse{
+			ProductId: item.ID.String(),
+		},
 	), nil
 }
 

@@ -14,7 +14,9 @@ message CreateInventoryRequest {
   int32 quantity = 2;
 }
 
-message CreateInventoryResponse {}
+message CreateInventoryResponse {
+  string product_id = 1;
+}
 
 message GetInventoryRequest {
   string product_id = 1;
