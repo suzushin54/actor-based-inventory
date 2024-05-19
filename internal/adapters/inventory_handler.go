@@ -41,7 +41,7 @@ func (s *InventoryServiceHandler) CreateInventory(
 
 	item := &actors.InventoryItem{
 		ID:    actors.ID(itemID),
-		Count: int(req.Msg.Inventory.Quantity),
+		Count: int(req.Msg.Quantity),
 	}
 
 	if err := s.service.AddInventoryItem(ctx, item); err != nil {
