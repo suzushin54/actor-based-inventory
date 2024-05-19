@@ -17,7 +17,7 @@ The inventory is implemented using the actor model, which allows for concurrent 
 - `make install-check`: Check if all necessary tools are correctly installed.
 - `make buf`: Lint and generate code from protobuf files using Buf.
 - `make wire`: Generate dependency injection code using Google Wire.
-- `make runn`: Run the scenario test using the `runn` tool.
+- `make test`: Run the scenario test using the `runn` tool.
 
 ## Running the Application
 

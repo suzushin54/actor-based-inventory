@@ -26,6 +26,6 @@ buf:
 wire: ## wire
 	wire ./cmd/di
 
-.PHONY: runn
-runn: ## runn
-	runn run tests/inventory_tests/create_inventory_test.yaml
+.PHONY: test
+test: ## test
+	runn run tests/inventory/inventory_service.yaml
