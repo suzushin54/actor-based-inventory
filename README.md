@@ -4,6 +4,25 @@ This is a simple inventory system that uses actors to manage the state of the in
 
 The inventory is implemented using the actor model, which allows for concurrent access to the inventory state.
 
+```
++------------+     +----------------+     +----------------+     +----------------+
+|            |     |                |     |                |     |                |
+|   Client   +---->+  gRPC Server   +---->+     Kafka      +---->+   Cassandra    |
+|            |     |                |     |                |     |                |
++------------+     +----------------+     +----------------+     +----------------+
+                          ^
+                          |
+                          |
+                          |            
+                  +-------v---------+
+                  |                 |
+                  |  Actor System   |
+                  |                 |
+                  +-----------------+
+
+```
+
+
 ## Technologies
 - [Go](https://golang.org/)
 - [Proto.Actor](https://proto.actor/) - A cross-platform actors framework
