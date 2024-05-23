@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package order.v1;
+
+service OrderService {
+  rpc CreateOrder(CreateOrderRequest) returns (CreateOrderResponse) {}
+  rpc GetOrder(GetOrderRequest) returns (GetOrderResponse) {}
+}
+
+message CreateOrderRequest {
+  OrderProduct product = 1;
+  int32 quantity = 2;
+  string status = 3;
+}
+
+message CreateOrderResponse {
+  string order_id = 1;
+}
+
+message GetOrderRequest {
+  string order_id = 1;
+}
+
+message GetOrderResponse {
+  Order order = 1;
+}
+
+message Order {
+  string order_id = 1;
+  OrderProduct product = 2;
+  int32 quantity = 3;
+  string status = 4;
+  string created_at = 5;
+}
+
+message OrderProduct {
+  string product_id = 1;
+  string name = 2;
+  float price = 3;
+}
