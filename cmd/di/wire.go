@@ -19,10 +19,14 @@ func InitServer(logger *slog.Logger) (*server.Server, error) {
 	wire.Build(
 		NewActorSystem,
 
-		service.NewInventoryService,
+		adapters.NewOrderServiceHandler,
+		//service.NewOrderService,
+
 		adapters.NewInventoryServiceHandler,
-		infrastructure.NewEventPublisher,
+		service.NewInventoryService,
+
 		// server
+		infrastructure.NewEventPublisher,
 		provideHTTPHandler,
 		server.ConfigureMux,
 		server.NewServer,

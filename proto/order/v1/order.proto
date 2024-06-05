@@ -8,9 +8,7 @@ service OrderService {
 }
 
 message CreateOrderRequest {
-  OrderProduct product = 1;
-  int32 quantity = 2;
-  string status = 3;
+  repeated OrderProduct products = 1;
 }
 
 message CreateOrderResponse {
@@ -27,14 +25,14 @@ message GetOrderResponse {
 
 message Order {
   string order_id = 1;
-  OrderProduct product = 2;
-  int32 quantity = 3;
-  string status = 4;
-  string created_at = 5;
+  repeated OrderProduct products = 2;
+  string status = 3;
+  string created_at = 4;
 }
 
 message OrderProduct {
   string product_id = 1;
   string name = 2;
   float price = 3;
+  int32 quantity = 4;
 }
