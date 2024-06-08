@@ -7,26 +7,26 @@ import (
 	"github.com/oklog/ulid/v2"
 )
 
-type ID ulid.ULID
+type InventoryID ulid.ULID
 
-func (id ID) String() string {
+func (id InventoryID) String() string {
 	return ulid.ULID(id).String()
 }
 
 // InventoryItem represents an item in an inventory.
 type InventoryItem struct {
-	ID    ID
+	ID    InventoryID
 	Name  string
 	Count int
 }
 
 // InventoryActor is an actor that manages an inventory of items.
 type InventoryActor struct {
-	Items map[ID]*InventoryItem
+	Items map[InventoryID]*InventoryItem
 }
 
 type QueryInventoryItem struct {
-	ItemID ID
+	ItemID InventoryID
 }
 
 type AddInventoryItem struct {
@@ -38,12 +38,12 @@ type UpdateInventoryItem struct {
 }
 
 type RemoveInventoryItem struct {
-	ItemID ID
+	ItemID InventoryID
 }
 
 func NewInventoryActor() *InventoryActor {
 	return &InventoryActor{
-		Items: make(map[ID]*InventoryItem),
+		Items: make(map[InventoryID]*InventoryItem),
 	}
 }
 
