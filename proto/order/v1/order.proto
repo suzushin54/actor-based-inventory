@@ -33,6 +33,6 @@ message Order {
 message OrderProduct {
   string product_id = 1;
   string name = 2;
-  float price = 3;
+  int32 price = 3;
   int32 quantity = 4;
 }

@@ -13,9 +13,9 @@ import (
 
 type InventoryService interface {
 	AddInventoryItem(ctx context.Context, item *actors.InventoryItem) error
-	RemoveInventoryItem(ctx context.Context, itemID actors.ID) error
+	RemoveInventoryItem(ctx context.Context, itemID actors.OrderID) error
 	UpdateInventoryItem(ctx context.Context, item *actors.InventoryItem) error
-	QueryInventoryItem(ctx context.Context, itemID actors.ID) (*actors.InventoryItem, error)
+	QueryInventoryItem(ctx context.Context, itemID actors.OrderID) (*actors.InventoryItem, error)
 }
 
 type inventoryService struct {
@@ -25,7 +25,11 @@ type inventoryService struct {
 	eventPublisher    *infrastructure.EventPublisher
 }
 
-func NewInventoryService(l *slog.Logger, as *actor.ActorSystem, ep *infrastructure.EventPublisher) InventoryService {
+func NewInventoryService(
+	l *slog.Logger,
+	as *actor.ActorSystem,
+	ep *infrastructure.EventPublisher,
+) InventoryService {
 	l = l.With("component", "InventoryService")
 
 	props := actor.PropsFromProducer(
@@ -57,8 +61,8 @@ func (s *inventoryService) AddInventoryItem(ctx context.Context, item *actors.In
 	return nil
 }
 
-func (s *inventoryService) RemoveInventoryItem(ctx context.Context, itemID actors.ID) error {
-	s.actorSystem.Root.Send(s.inventoryActorPID, &actors.RemoveInventoryItem{ItemID: itemID})
+func (s *inventoryService) RemoveInventoryItem(ctx context.Context, itemID actors.OrderID) error {
+	s.actorSystem.Root.Send(s.inventoryActorPID, &actors.RemoveInventoryItem{ItemID: actors.InventoryID(itemID)})
 
 	message := fmt.Sprintf("Removed item %s from inventory", itemID.String())
 	if err := s.eventPublisher.Publish("inventory", itemID.String(), []byte(message)); err != nil {
@@ -85,9 +89,9 @@ func (s *inventoryService) UpdateInventoryItem(ctx context.Context, item *actors
 	return nil
 }
 
-func (s *inventoryService) QueryInventoryItem(ctx context.Context, itemID actors.ID) (*actors.InventoryItem, error) {
+func (s *inventoryService) QueryInventoryItem(ctx context.Context, itemID actors.OrderID) (*actors.InventoryItem, error) {
 	future := s.actorSystem.Root.RequestFuture(s.inventoryActorPID, &actors.QueryInventoryItem{
-		ItemID: itemID,
+		ItemID: actors.InventoryID(itemID),
 	}, 5*time.Second)
 
 	result, err := future.Result()

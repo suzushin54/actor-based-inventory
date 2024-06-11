@@ -40,7 +40,7 @@ func (s *InventoryServiceHandler) CreateInventory(
 	}
 
 	item := &actors.InventoryItem{
-		ID:    actors.ID(itemID),
+		ID:    actors.InventoryID(itemID),
 		Count: int(req.Msg.Quantity),
 	}
 
@@ -65,7 +65,7 @@ func (s *InventoryServiceHandler) GetInventory(
 		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid ULID: %v", err))
 	}
 
-	item, err := s.service.QueryInventoryItem(ctx, actors.ID(itemID))
+	item, err := s.service.QueryInventoryItem(ctx, actors.OrderID(itemID))
 	if err != nil {
 		return nil, connect.NewError(connect.CodeNotFound, fmt.Errorf("item not found: %v", err))
 	}
@@ -91,7 +91,7 @@ func (s *InventoryServiceHandler) UpdateInventory(
 	}
 
 	item := &actors.InventoryItem{
-		ID:    actors.ID(itemID),
+		ID:    actors.InventoryID(itemID),
 		Count: int(req.Msg.Inventory.Quantity),
 	}
 
@@ -114,7 +114,7 @@ func (s *InventoryServiceHandler) DeleteInventory(
 		return nil, err
 	}
 
-	if err := s.service.RemoveInventoryItem(ctx, actors.ID(itemID)); err != nil {
+	if err := s.service.RemoveInventoryItem(ctx, actors.OrderID(itemID)); err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 

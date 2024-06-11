@@ -18,14 +18,14 @@ func (id OrderID) String() string {
 type OrderProduct struct {
 	ProductID string
 	Name      string
-	Price     float64
+	Price     int
 	Quantity  int
 }
 
 // Order represents an order.
 type Order struct {
 	ID        OrderID
-	Products  []OrderProduct
+	Products  []*OrderProduct
 	Status    string
 	CreatedAt string
 }
