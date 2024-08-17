@@ -1,0 +1,36 @@
+### CreateInventory
+POST http://localhost:8080/inventory.v1.InventoryService/CreateInventory
+Content-Type: application/json
+
+{
+  "name": "example_product",
+  "quantity": 10
+}
+
+### GetInventory
+POST http://localhost:8080/inventory.v1.InventoryService/GetInventory
+Content-Type: application/json
+
+{
+  "product_id": "01J5G67GYB0000000000000000"
+}
+
+### UpdateInventory
+POST http://localhost:8080/inventory.v1.InventoryService/UpdateInventory
+Content-Type: application/json
+
+{
+  "inventory": {
+    "product_id": "example_product_id",
+    "name": "updated_product_name",
+    "quantity": 20
+  }
+}
+
+### DeleteInventory
+POST http://localhost:8080/inventory.v1.InventoryService/DeleteInventory
+Content-Type: application/json
+
+{
+  "product_id": "example_product_id"
+}
