@@ -14,7 +14,7 @@ bin = "../tmp/main"
 
 # Customize binary, can setup environment variables when run your app.
 #full_bin = "APP_ENV=dev APP_USER=air ./tmp/main 80" # add default http port
-full_bin = "/go/bin/dlv exec ../tmp/main --headless=true --listen=:2345 --api-version=2 --accept-multiclient --continue"
+full_bin = "dlv exec ../tmp/main --headless=true --listen=:2345 --api-version=2 --accept-multiclient --continue"
 
 
 # Watch these filename extensions.
