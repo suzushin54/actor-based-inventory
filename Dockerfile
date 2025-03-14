@@ -1,5 +1,5 @@
 ## Build stage
-FROM golang:1.22.2-bullseye as base
+FROM golang:1.24.1-bullseye as base
 
 WORKDIR /app
 
@@ -12,7 +12,7 @@ RUN --mount=type=cache,target=/go/pkg/mod/ \
 FROM base AS development
 
 RUN go install github.com/go-delve/delve/cmd/dlv@latest
-RUN go install github.com/cosmtrek/air@latest
+RUN go install github.com/air-verse/air@latest
 
 COPY . .
 
